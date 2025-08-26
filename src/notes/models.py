@@ -24,6 +24,8 @@ class Note(CreateUpdateModel, SoftDeleteModel):
         cursor_created_at: Optional[datetime] = None,
         cursor_id: Optional[int] = None,
         limit: Optional[int] = 100,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
     ):
         stmt = cls.select_active()
         if cursor_id and cursor_created_at:
@@ -40,6 +42,10 @@ class Note(CreateUpdateModel, SoftDeleteModel):
             stmt = stmt.where(Note.created_at < cursor_created_at)
         if title:
             stmt = stmt.where(Note.title.like(f"%{title}%"))
+        if start_date:
+            stmt = stmt.where(Note.created_at >= start_date)
+        if end_date:
+            stmt = stmt.where(Note.created_at <= end_date)
         return db.session.scalars(
             stmt.order_by(Note.created_at.desc(), Note.id.desc()).limit(limit)
         ).all()
