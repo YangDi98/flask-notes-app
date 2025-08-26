@@ -18,3 +18,5 @@ class FetchNotesResponseSchema(PaginationResponseSchema):
 
 class FetchNotesRequestSchema(PaginationRequestSchema):
     title = fields.Str()
+    start_date = fields.DateTime()
+    end_date = fields.DateTime()

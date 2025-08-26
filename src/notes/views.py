@@ -26,7 +26,6 @@ def _find_note_or_404(note_id):
 @note_blueprint.arguments(FetchNotesRequestSchema, location="query")
 @note_blueprint.response(200, FetchNotesResponseSchema)
 def get_notes(args, user_id):
-    print(args)
     notes = Note.filter(**args)
     next_cursor = notes[-1].created_at if notes else None
     next_id = notes[-1].id if notes else None
