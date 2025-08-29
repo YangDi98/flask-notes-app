@@ -4,14 +4,25 @@ from typing import Optional
 
 from src.extensions import db
 from src.models import CreateUpdateModel, SoftDeleteModel
+from sqlalchemy import Integer, String, Text, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.users.models import User
 
 
 class Note(CreateUpdateModel, SoftDeleteModel):
     __tablename__ = "notes"
     __table_args__ = (db.Index("idx_created_at_id", "created_at", "id"),)
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Text)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    title: Mapped[str] = mapped_column(String(100), nullable=False)
+    content: Mapped[str] = mapped_column(Text)
+
+    user: Mapped["User"] = relationship(back_populates="notes")
 
     @classmethod
     def find_note_by_id(cls, id):
@@ -20,6 +31,7 @@ class Note(CreateUpdateModel, SoftDeleteModel):
     @classmethod
     def filter(
         cls,
+        user_id: int,
         title: Optional[str] = None,
         cursor_created_at: Optional[datetime] = None,
         cursor_id: Optional[int] = None,
@@ -27,7 +39,7 @@ class Note(CreateUpdateModel, SoftDeleteModel):
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
     ):
-        stmt = cls.select_active()
+        stmt = cls.select_active().where(cls.user_id == user_id)
         if cursor_id and cursor_created_at:
             stmt = stmt.where(
                 or_(
