@@ -2,19 +2,36 @@ from datetime import datetime, timezone
 from sqlalchemy.sql import func
 from sqlalchemy import select
 from src.extensions import db
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, Integer
+from flask_smorest import abort
 
 
-class CreateUpdateModel(db.Model):
+class BaseModel(db.Model):
     __abstract__ = True
 
-    created_at = db.Column(
-        db.DateTime,
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    @classmethod
+    def get_or_404(cls, id):
+        stmt = select(cls).where(cls.id == id)
+        result = db.session.execute(stmt).scalar_one_or_none()
+        if result is None:
+            abort(404)
+        return result
+
+
+class CreateUpdateModel(BaseModel):
+    __abstract__ = True
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
         nullable=False,
         default=datetime.now(timezone.utc),
         server_default=func.now(),
     )
-    updated_at = db.Column(
-        db.DateTime,
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
         nullable=False,
         default=datetime.now(timezone.utc),
         server_default=func.now(),
@@ -22,10 +39,10 @@ class CreateUpdateModel(db.Model):
     )
 
 
-class SoftDeleteModel(db.Model):
+class SoftDeleteModel(BaseModel):
     __abstract__ = True
 
-    deleted_at = db.Column(db.DateTime)
+    deleted_at: Mapped[datetime] = mapped_column(DateTime)
 
     def soft_delete(self, commit: bool = False):
         self.deleted_at = datetime.now(timezone.utc)
@@ -73,3 +90,15 @@ class SoftDeleteModel(db.Model):
         else:
             stmt = cls.select_active()
         return db.session.execute(stmt).scalars().all()
+
+    @classmethod
+    def get_or_404(cls, id, include_deleted=False):
+        if include_deleted:
+            stmt = select(cls).where(cls.id == id)
+        else:
+            stmt = cls.select_active().where(cls.id == id)
+
+        result = db.session.execute(stmt).scalar_one_or_none()
+        if result is None:
+            abort(404)
+        return result
