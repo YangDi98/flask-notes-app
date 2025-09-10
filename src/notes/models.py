@@ -4,7 +4,7 @@ from typing import Optional
 
 from src.extensions import db
 from src.models import CreateUpdateModel, SoftDeleteModel
-from sqlalchemy import Integer, String, Text, ForeignKey
+from sqlalchemy import Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from typing import TYPE_CHECKING
@@ -20,7 +20,10 @@ class Note(CreateUpdateModel, SoftDeleteModel):
         Integer, ForeignKey("users.id"), nullable=False
     )
     title: Mapped[str] = mapped_column(String(100), nullable=False)
-    content: Mapped[str] = mapped_column(Text)
+    content: Mapped[str] = mapped_column(Text, nullable=True)
+    archived: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="0"
+    )
 
     user: Mapped["User"] = relationship(back_populates="notes")
 
@@ -38,6 +41,7 @@ class Note(CreateUpdateModel, SoftDeleteModel):
         limit: Optional[int] = 100,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
+        archived: bool = False,
     ):
         stmt = cls.select_active().where(cls.user_id == user_id)
         if cursor_id and cursor_created_at:
@@ -58,6 +62,8 @@ class Note(CreateUpdateModel, SoftDeleteModel):
             stmt = stmt.where(Note.created_at >= start_date)
         if end_date:
             stmt = stmt.where(Note.created_at <= end_date)
+        if archived is not None:
+            stmt = stmt.where(Note.archived.is_(archived))
         return db.session.scalars(
             stmt.order_by(Note.created_at.desc(), Note.id.desc()).limit(limit)
         ).all()
