@@ -6,6 +6,8 @@ from src.schemas import PaginationRequestSchema, PaginationResponseSchema
 class NoteSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str(required=True)
+    user_id = fields.Int(dump_only=True)
+    archived = fields.Int()
     content = fields.Str()
     deleted_at = fields.DateTime(dump_only=True)
     created_at = fields.DateTime(dump_only=True)

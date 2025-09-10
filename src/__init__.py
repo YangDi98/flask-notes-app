@@ -4,7 +4,7 @@ from marshmallow.exceptions import ValidationError
 from http import HTTPStatus
 
 from src.notes import note_blueprint
-from .extensions import db
+from .extensions import db, migrate
 
 
 def create_app():
@@ -13,13 +13,11 @@ def create_app():
     app.config["API_VERSION"] = "1.0.0"
     app.config["OPENAPI_VERSION"] = "3.0.2"
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.sqlite"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes_db.sqlite"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # silence warnings
 
-    db.init_app(app)  # bind db to this app
-
-    with app.app_context():
-        db.create_all()  # create tables if they don't exist
+    db.init_app(app)
+    migrate.init_app(app, db)  # bind db to this app
 
     @app.errorhandler(HTTPStatus.UNPROCESSABLE_ENTITY)
     def handle_unprocessable_entity(err):

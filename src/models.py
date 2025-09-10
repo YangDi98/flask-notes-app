@@ -20,6 +20,22 @@ class BaseModel(db.Model):
             abort(404)
         return result
 
+    @classmethod
+    def create(cls, data, commit: bool = False):
+        instance = cls(**data)
+        db.session.add(instance)
+        if commit:
+            db.session.commit()
+        return instance
+
+    def update(self, data: dict, commit: bool = False):
+        for key, value in data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        if commit:
+            db.session.commit()
+        return self
+
 
 class CreateUpdateModel(BaseModel):
     __abstract__ = True
@@ -42,7 +58,7 @@ class CreateUpdateModel(BaseModel):
 class SoftDeleteModel(BaseModel):
     __abstract__ = True
 
-    deleted_at: Mapped[datetime] = mapped_column(DateTime)
+    deleted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
     def soft_delete(self, commit: bool = False):
         self.deleted_at = datetime.now(timezone.utc)

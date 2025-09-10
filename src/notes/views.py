@@ -9,7 +9,6 @@ from src.notes.schemas import (
 )
 from src.notes.models import Note
 from src.users.models import User
-from src.extensions import db
 
 note_blueprint = Blueprint(
     "note", __name__, url_prefix="/users/<int:user_id>/notes"
@@ -50,10 +49,9 @@ def get_note(user_id, note_id):
 @note_blueprint.arguments(NoteSchema, location="json")
 @note_blueprint.response(201, NoteSchema)
 def create_note(json_data, user_id):
+    # All need to validate identity of user
     User.get_or_404(user_id)
-    note = Note(**json_data)
-    db.session.add(note)
-    db.session.commit()
+    note = Note.create({**json_data, "user_id": user_id}, commit=True)
     return note
 
 
@@ -63,11 +61,7 @@ def create_note(json_data, user_id):
 def update_note(json_data, user_id, note_id):
     User.get_or_404(user_id)
     note = Note.get_or_404(note_id)
-    if "title" in json_data:
-        note.title = json_data["title"]
-    if "content" in json_data:
-        note.content = json_data["content"]
-    db.session.commit()
+    note.update(json_data, commit=True)
     return note
 
 
