@@ -19,6 +19,8 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)  # bind db to this app
 
+    from . import models_registry  # noqa: F401
+
     @app.errorhandler(HTTPStatus.UNPROCESSABLE_ENTITY)
     def handle_unprocessable_entity(err):
         return (

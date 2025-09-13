@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.notes.models import Note
+    from src.categories.models import Category
 
 
 class User(CreateUpdateModel, SoftDeleteModel):
@@ -18,7 +19,8 @@ class User(CreateUpdateModel, SoftDeleteModel):
         Boolean, nullable=False, default=True, server_default="1"
     )
 
-    notes: Mapped[list["Note"]] = relationship("Note", back_populates="user")
+    notes: Mapped[list["Note"]] = relationship(back_populates="user")
+    categories: Mapped[list["Category"]] = relationship(back_populates="user")
 
     @classmethod
     def find_user_by_id(cls, id):

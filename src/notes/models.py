@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.users.models import User
+    from src.categories.models import Category
 
 
 class Note(CreateUpdateModel, SoftDeleteModel):
@@ -20,12 +21,20 @@ class Note(CreateUpdateModel, SoftDeleteModel):
         Integer, ForeignKey("users.id"), nullable=False
     )
     title: Mapped[str] = mapped_column(String(100), nullable=False)
-    content: Mapped[str] = mapped_column(Text, nullable=True)
+    content: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     archived: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="0"
     )
+    category_id: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        ForeignKey("categories.id", name="fk_notes_category_id"),
+        nullable=True,
+    )
 
     user: Mapped["User"] = relationship(back_populates="notes")
+    category: Mapped[Optional["Category"]] = relationship(
+        back_populates="notes"
+    )
 
     @classmethod
     def find_note_by_id(cls, id):
@@ -42,6 +51,7 @@ class Note(CreateUpdateModel, SoftDeleteModel):
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
         archived: bool = False,
+        category_id: Optional[int] = None,
     ):
         stmt = cls.select_active().where(cls.user_id == user_id)
         if cursor_id and cursor_created_at:
@@ -64,6 +74,8 @@ class Note(CreateUpdateModel, SoftDeleteModel):
             stmt = stmt.where(Note.created_at <= end_date)
         if archived is not None:
             stmt = stmt.where(Note.archived.is_(archived))
+        if category_id is not None:
+            stmt = stmt.where(Note.category_id == category_id)
         return db.session.scalars(
             stmt.order_by(Note.created_at.desc(), Note.id.desc()).limit(limit)
         ).all()
