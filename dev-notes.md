@@ -61,6 +61,27 @@ Adding authorization to the project
 </details>
 
 <details>
+<summary>Add Category For Note</summary>
+
+## Feature:
+Adding category for note, nullable, each note can have at most one category
+
+---
+### 1. What could go wrong?
+- Category can be deleted (soft deleted) and some notes are still linking to the deleted category. 
+- We have not verify user identity for access category yet (user authentication later).
+- Not sure what performance impact is of filtering notes based on categories.
+---
+### 2. Tester attack plan (try to break it)
+- Test CRUD of categories.
+- When deleting a category, its notes should be set to category None.
+---
+### 4. Later / Research:
+- Need to address the above issue about deleting category when implementing CRUD of category. 
+
+</details>
+
+<details>
   <summary>CRUD endpoints for "Note" </summary>
 
 
@@ -75,6 +96,7 @@ CRUD endpoints for `Note`
 - Missing or invalid input data could cause server errors or inconsistent database state.
 - Deleting an item that is referenced elsewhere could cause integrity issues.
 - Large payloads or too many requests could impact performance.
+- We have not verify user identity to access note yet. 
 
 ---
 
@@ -84,7 +106,6 @@ CRUD endpoints for `Note`
 - Try deleting an item twice in rapid succession.
 - Send malformed JSON or non-JSON content.
 - Test for SQL injection or other malicious inputs.
-
 ---
 
 ### 3. After solving:

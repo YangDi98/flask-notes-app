@@ -9,6 +9,7 @@ class NoteSchema(Schema):
     user_id = fields.Int(dump_only=True)
     archived = fields.Int()
     content = fields.Str()
+    category_id = fields.Int(allow_none=True)
     deleted_at = fields.DateTime(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
