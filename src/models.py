@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 from sqlalchemy.sql import func
 from sqlalchemy import select
 from src.extensions import db
@@ -58,7 +59,9 @@ class CreateUpdateModel(BaseModel):
 class SoftDeleteModel(BaseModel):
     __abstract__ = True
 
-    deleted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime, nullable=True
+    )
 
     def soft_delete(self, commit: bool = False):
         self.deleted_at = datetime.now(timezone.utc)

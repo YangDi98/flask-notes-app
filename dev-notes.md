@@ -59,6 +59,21 @@ Adding authorization to the project
 - Attempt to update an item with incorrect ID or unauthorized user.
 
 </details>
+<summary>Restore deleted Note</summary>
+
+## Feature / Fix Name:
+Restore deleted note
+
+---
+### 1. What could go wrong?
+- We have not verify user identity to access note yet.
+- For all accessing notes, we have to make sure the user has access to the note. Not just the user exists, and the note exists, but the note must belong to the user.
+
+### 2. Tester attack plan (try to break it)
+- We have to test all cases of user does not exist, user not active, note does not exist, note does not belong to user, for each endpoint.
+<details>
+
+</details>
 
 <details>
 <summary>Add Category For Note</summary>

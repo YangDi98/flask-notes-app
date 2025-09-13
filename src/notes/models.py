@@ -1,4 +1,5 @@
 from sqlalchemy import or_, and_
+from flask_smorest import abort
 from datetime import datetime
 from typing import Optional
 
@@ -7,10 +8,11 @@ from src.models import CreateUpdateModel, SoftDeleteModel
 from sqlalchemy import Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.users.models import User
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.users.models import User
     from src.categories.models import Category
 
 
@@ -37,8 +39,35 @@ class Note(CreateUpdateModel, SoftDeleteModel):
     )
 
     @classmethod
-    def find_note_by_id(cls, id):
-        return cls.get_by_id(id=id)
+    def find_note_by_user_and_id(
+        cls, user_id, id, include_deleted: bool = False
+    ):
+        user = User.get_by_id(user_id)
+        if user is None:
+            return None
+        stmt = (
+            cls.select_with_deleted()
+            if include_deleted
+            else cls.select_active()
+        )
+        stmt = stmt.where(cls.user_id == user_id, cls.id == id)
+        return db.session.execute(stmt).scalar_one_or_none()
+
+    @classmethod
+    def find_note_by_user_and_id_or_404(
+        cls, user_id, id, include_deleted: bool = False
+    ):
+        User.get_or_404(user_id)
+        stmt = (
+            cls.select_with_deleted()
+            if include_deleted
+            else cls.select_active()
+        )
+        stmt = stmt.where(cls.user_id == user_id, cls.id == id)
+        result = db.session.execute(stmt).scalar_one_or_none()
+        if result is None:
+            abort(404)
+        return result
 
     @classmethod
     def filter(
@@ -79,3 +108,9 @@ class Note(CreateUpdateModel, SoftDeleteModel):
         return db.session.scalars(
             stmt.order_by(Note.created_at.desc(), Note.id.desc()).limit(limit)
         ).all()
+
+    def restore(self, commit: bool = False):
+        self.deleted_at = None
+        if commit:
+            db.session.commit()
+        return self
