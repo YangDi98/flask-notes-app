@@ -3,6 +3,7 @@ from src.extensions import db
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
+from flask_smorest import abort
 
 if TYPE_CHECKING:
     from src.notes.models import Note
@@ -23,5 +24,29 @@ class User(CreateUpdateModel, SoftDeleteModel):
     categories: Mapped[list["Category"]] = relationship(back_populates="user")
 
     @classmethod
-    def find_user_by_id(cls, id):
-        return cls.get_by_id(id=id)
+    def get_by_id(
+        cls, id, include_deleted: bool = False, include_inactive: bool = False
+    ):
+        stmt = (
+            cls.select_with_deleted()
+            if include_deleted
+            else cls.select_active()
+        )
+        if not include_inactive:
+            stmt = stmt.where(cls.active.is_(True))
+        stmt = stmt.where(cls.id == id)
+        result = db.session.execute(stmt).scalar_one_or_none()
+        return result
+
+    @classmethod
+    def get_or_404(
+        cls, id, include_deleted: bool = False, include_inactive: bool = False
+    ):
+        result = cls.get_by_id(
+            id,
+            include_deleted=include_deleted,
+            include_inactive=include_inactive,
+        )
+        if result is None:
+            abort(404)
+        return result

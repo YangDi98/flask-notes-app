@@ -41,8 +41,7 @@ def get_notes(args, user_id):
 @note_blueprint.route("/<int:note_id>", methods=["GET"])
 @note_blueprint.response(200, NoteSchema)
 def get_note(user_id, note_id):
-    User.get_or_404(user_id)
-    return Note.get_or_404(note_id)
+    return Note.find_note_by_user_and_id_or_404(user_id, note_id)
 
 
 @note_blueprint.route("/", methods=["POST"])
@@ -59,8 +58,7 @@ def create_note(json_data, user_id):
 @note_blueprint.arguments(NoteSchema, location="json")
 @note_blueprint.response(200, NoteSchema)
 def update_note(json_data, user_id, note_id):
-    User.get_or_404(user_id)
-    note = Note.get_or_404(note_id)
+    note = Note.find_note_by_user_and_id_or_404(user_id, note_id)
     note.update(json_data, commit=True)
     return note
 
@@ -68,7 +66,16 @@ def update_note(json_data, user_id, note_id):
 @note_blueprint.route("/<int:note_id>", methods=["DELETE"])
 @note_blueprint.response(HTTPStatus.NO_CONTENT)
 def delete_note(user_id, note_id):
-    User.get_or_404(user_id)
-    note = Note.get_or_404(note_id)
+    note = Note.find_note_by_user_and_id_or_404(user_id, note_id)
     note.soft_delete(commit=True)
     return
+
+
+@note_blueprint.route("/<int:note_id>/restore", methods=["POST"])
+@note_blueprint.response(200, NoteSchema)
+def restore_note(user_id, note_id):
+    note = Note.find_note_by_user_and_id_or_404(
+        user_id, note_id, include_deleted=True
+    )
+    note.restore(commit=True)
+    return note
