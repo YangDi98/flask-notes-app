@@ -6,9 +6,11 @@ from src.notes.schemas import (
     NoteSchema,
     FetchNotesResponseSchema,
     FetchNotesRequestSchema,
+    UpdateNoteSchema,
 )
 from src.notes.models import Note
 from src.users.models import User
+from src.categories.models import Category
 
 note_blueprint = Blueprint(
     "note", __name__, url_prefix="/users/<int:user_id>/notes"
@@ -50,14 +52,22 @@ def get_note(user_id, note_id):
 def create_note(json_data, user_id):
     # All need to validate identity of user
     User.get_or_404(user_id)
+    if json_data.get("category_id"):
+        Category.find_category_by_user_and_id_or_404(
+            user_id, json_data["category_id"]
+        )
     note = Note.create({**json_data, "user_id": user_id}, commit=True)
     return note
 
 
 @note_blueprint.route("/<int:note_id>", methods=["PUT"])
-@note_blueprint.arguments(NoteSchema, location="json")
+@note_blueprint.arguments(UpdateNoteSchema, location="json")
 @note_blueprint.response(200, NoteSchema)
 def update_note(json_data, user_id, note_id):
+    if json_data.get("category_id"):
+        Category.find_category_by_user_and_id_or_404(
+            user_id, json_data["category_id"]
+        )
     note = Note.find_note_by_user_and_id_or_404(user_id, note_id)
     note.update(json_data, commit=True)
     return note

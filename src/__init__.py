@@ -4,6 +4,7 @@ from marshmallow.exceptions import ValidationError
 from http import HTTPStatus
 
 from src.notes import note_blueprint
+from src.categories import category_blueprint
 from .extensions import db, migrate
 
 
@@ -52,4 +53,5 @@ def create_app():
     api = Api(app)
 
     api.register_blueprint(note_blueprint)
+    api.register_blueprint(category_blueprint)
     return app

@@ -15,6 +15,13 @@ class NoteSchema(Schema):
     updated_at = fields.DateTime(dump_only=True)
 
 
+class UpdateNoteSchema(Schema):
+    title = fields.Str()
+    archived = fields.Int()
+    content = fields.Str()
+    category_id = fields.Int(allow_none=True)
+
+
 class FetchNotesResponseSchema(PaginationResponseSchema):
     data = fields.Nested(NoteSchema, many=True)
 
