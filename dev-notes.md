@@ -90,6 +90,8 @@ Adding category for note, nullable, each note can have at most one category
 ### 2. Tester attack plan (try to break it)
 - Test CRUD of categories.
 - When deleting a category, its notes should be set to category None.
+- When add/update category for note, verify the category exists (undeleted).
+- Not sure how effecient of my loop of going through category's notes and remove category is if there is a large number of notes
 ---
 ### 4. Later / Research:
 - Need to address the above issue about deleting category when implementing CRUD of category. 

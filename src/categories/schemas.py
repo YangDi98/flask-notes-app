@@ -14,3 +14,18 @@ class CategorySchema(Schema):
     notes = fields.Nested(
         NoteSchema, only=["id", "title"], many=True, dump_only=True
     )
+
+
+class UpdateCategorySchema(Schema):
+    name = fields.Str(validate=validate.Length(min=1, max=100))
+    description = fields.Str(allow_none=True)
+    color = fields.Str(allow_none=True)
+
+
+class CategorySummarySchema(CategorySchema):
+    class Meta:
+        exclude = ("notes",)
+
+
+class CategoryListRequestSchema(Schema):
+    summary = fields.Bool(load_default=False)

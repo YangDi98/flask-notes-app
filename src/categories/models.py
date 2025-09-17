@@ -2,10 +2,12 @@ from src.models import CreateUpdateModel, SoftDeleteModel
 from sqlalchemy import ForeignKey, Integer, String
 from src.extensions import db
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from flask_smorest import abort
 from typing import TYPE_CHECKING, Optional
 
+from src.users.models import User
+
 if TYPE_CHECKING:
-    from src.users.models import User
     from src.notes.models import Note
 
 
@@ -23,6 +25,32 @@ class Category(CreateUpdateModel, SoftDeleteModel):
 
     user: Mapped["User"] = relationship(back_populates="categories")
     notes: Mapped[list["Note"]] = relationship(back_populates="category")
+
+    @classmethod
+    def find_category_by_user_and_id(
+        cls, user_id: int, id: int, include_deleted: bool = False
+    ):
+        user = User.get_by_id(user_id)
+        if user is None:
+            return None
+        stmt = (
+            cls.select_with_deleted()
+            if include_deleted
+            else cls.select_active()
+        )
+        stmt = stmt.where(cls.user_id == user_id, cls.id == id)
+        return db.session.execute(stmt).scalar_one_or_none()
+
+    @classmethod
+    def find_category_by_user_and_id_or_404(
+        cls, user_id: int, id: int, include_deleted: bool = False
+    ):
+        result = cls.find_category_by_user_and_id(
+            user_id, id, include_deleted=include_deleted
+        )
+        if result is None:
+            abort(404)
+        return result
 
     @classmethod
     def filter(
