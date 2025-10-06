@@ -1,13 +1,13 @@
 from flask_smorest import Blueprint
 
-from src.categories.schemas import (
+from src.schemas.categories import (
     CategorySchema,
     CategorySummarySchema,
     CategoryListRequestSchema,
     UpdateCategorySchema,
 )
-from src.categories.models import Category
-from src.users.models import User
+from src.models.categories import Category
+from src.models.users import User
 from src.extensions import db
 
 

@@ -59,6 +59,7 @@ Adding authorization to the project
 - Attempt to update an item with incorrect ID or unauthorized user.
 
 </details>
+<details>
 <summary>Restore deleted Note</summary>
 
 ## Feature / Fix Name:
@@ -71,7 +72,6 @@ Restore deleted note
 
 ### 2. Tester attack plan (try to break it)
 - We have to test all cases of user does not exist, user not active, note does not exist, note does not belong to user, for each endpoint.
-<details>
 
 </details>
 

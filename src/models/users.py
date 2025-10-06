@@ -1,4 +1,4 @@
-from src.models import CreateUpdateModel, SoftDeleteModel
+from src.models.base_models import CreateUpdateModel, SoftDeleteModel
 from src.extensions import db
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 from flask_smorest import abort
 
 if TYPE_CHECKING:
-    from src.notes.models import Note
-    from src.categories.models import Category
+    from src.models.notes import Note
+    from src.models.categories import Category
 
 
 class User(CreateUpdateModel, SoftDeleteModel):

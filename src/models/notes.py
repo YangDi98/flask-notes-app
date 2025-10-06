@@ -4,16 +4,16 @@ from datetime import datetime
 from typing import Optional
 
 from src.extensions import db
-from src.models import CreateUpdateModel, SoftDeleteModel
+from src.models.base_models import CreateUpdateModel, SoftDeleteModel
 from sqlalchemy import Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.users.models import User
+from src.models.users import User
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.categories.models import Category
+    from src.models.categories import Category
 
 
 class Note(CreateUpdateModel, SoftDeleteModel):

@@ -2,15 +2,15 @@ from flask_smorest import Blueprint
 from flask import url_for
 from http import HTTPStatus
 
-from src.notes.schemas import (
+from src.schemas.notes import (
     NoteSchema,
     FetchNotesResponseSchema,
     FetchNotesRequestSchema,
     UpdateNoteSchema,
 )
-from src.notes.models import Note
-from src.users.models import User
-from src.categories.models import Category
+from src.models.notes import Note
+from src.models.users import User
+from src.models.categories import Category
 
 note_blueprint = Blueprint(
     "note", __name__, url_prefix="/users/<int:user_id>/notes"
