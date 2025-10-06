@@ -3,8 +3,8 @@ from flask_smorest import Api
 from marshmallow.exceptions import ValidationError
 from http import HTTPStatus
 
-from src.notes import note_blueprint
-from src.categories import category_blueprint
+from src.views.notes import note_blueprint
+from src.views.categories import category_blueprint
 from .extensions import db, migrate
 
 

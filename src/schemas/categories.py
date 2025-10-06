@@ -1,5 +1,5 @@
 from marshmallow import Schema, fields, validate
-from src.notes.schemas import NoteSchema
+from src.schemas.notes import NoteSchema
 
 
 class CategorySchema(Schema):

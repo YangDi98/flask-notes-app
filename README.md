@@ -13,7 +13,7 @@ poetry install
 ```
 ### 2. Run project
 ```
-poetry run flask --app app run
+poetry run flask run
 ```
 ## Development
 ### Linting

@@ -1,6 +1,9 @@
 from marshmallow import Schema, fields
 
-from src.schemas import PaginationRequestSchema, PaginationResponseSchema
+from src.schemas.base_schemas import (
+    PaginationRequestSchema,
+    PaginationResponseSchema,
+)
 
 
 class NoteSchema(Schema):
