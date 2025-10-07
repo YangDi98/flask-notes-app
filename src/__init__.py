@@ -5,7 +5,8 @@ from http import HTTPStatus
 
 from src.views.notes import note_blueprint
 from src.views.categories import category_blueprint
-from .extensions import db, migrate
+from src.views.auth import auth_blueprint
+from .extensions import db, migrate, bcrypt
 
 
 def create_app():
@@ -18,7 +19,8 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # silence warnings
 
     db.init_app(app)
-    migrate.init_app(app, db)  # bind db to this app
+    migrate.init_app(app, db)
+    bcrypt.init_app(app)
 
     from . import models_registry  # noqa: F401
 
@@ -54,4 +56,5 @@ def create_app():
 
     api.register_blueprint(note_blueprint)
     api.register_blueprint(category_blueprint)
+    api.register_blueprint(auth_blueprint)
     return app

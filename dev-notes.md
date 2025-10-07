@@ -59,6 +59,33 @@ Adding authorization to the project
 - Attempt to update an item with incorrect ID or unauthorized user.
 
 </details>
+
+<details>
+<summary>Add Register user endpoint</summary>
+
+## Feature / Fix Name:
+Add endpoint for register user
+
+---
+### 1. What could go wrong?
+- Email is not verified and might not be valid
+- Race condition: two requests with same email at the same time could bypass uniqueness check
+- Email format: email may not be valid if schema validation is weak.
+- Brute force registration: No rate limiting or CAPTCHA allows bots to spam registrations.
+- Case sensitivity: Emails like Test@Email.com and test@email.com may be treated as different.
+- Need to delete the test users without password and make password column non-nullable.
+
+### 2. Tester attack plan (try to break it)
+- Test all kinds of names, emails, passwords, duplicate emails (lower, upper case).
+- Later have tests to ensure all test cases are covered and sensitive data is not leaked in response.
+
+### 3. What risks does this bring
+- Security: brute-force registration, or race conditions to create fake or duplicate accounts,
+- Sensitive data exposure: If error handling or schemas are misconfigured, sensitive user data (like password hashes) could be leaked in responses
+- Race conditions could result in duplicate accounts and cause data integrity issues. 
+
+</details>
+
 <details>
 <summary>Restore deleted Note</summary>
 
