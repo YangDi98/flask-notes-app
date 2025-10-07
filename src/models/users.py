@@ -19,6 +19,7 @@ class User(CreateUpdateModel, SoftDeleteModel):
     active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="1"
     )
+    password: Mapped[str] = mapped_column(String(255), nullable=True)
 
     notes: Mapped[list["Note"]] = relationship(back_populates="user")
     categories: Mapped[list["Category"]] = relationship(back_populates="user")
