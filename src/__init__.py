@@ -2,14 +2,18 @@ from flask import Flask, jsonify
 from flask_smorest import Api
 from marshmallow.exceptions import ValidationError
 from http import HTTPStatus
+from datetime import timedelta
+from dotenv import load_dotenv
+import os
 
 from src.views.notes import note_blueprint
 from src.views.categories import category_blueprint
 from src.views.auth import auth_blueprint
-from .extensions import db, migrate, bcrypt
+from .extensions import db, migrate, bcrypt, jwt
 
 
 def create_app():
+    load_dotenv()
     app = Flask("Flask API")
     app.config["API_TITLE"] = "Notes API"
     app.config["API_VERSION"] = "1.0.0"
@@ -17,10 +21,13 @@ def create_app():
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes_db.sqlite"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # silence warnings
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)
 
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
+    jwt.init_app(app)
 
     from . import models_registry  # noqa: F401
 

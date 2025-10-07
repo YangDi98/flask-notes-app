@@ -61,6 +61,28 @@ Adding authorization to the project
 </details>
 
 <details>
+<summary>Add Login</summary>
+
+## Feature / Fix Name:
+Add Login
+
+---
+### 1. What could go wrong?
+- If emails are not consistently lowercased everywhere (including registration), users may be unable to log in with the email they registered.
+- If the request is missing email or password, it could cause a 500 error if not handled.
+
+### 2. Tester attack plan (try to break it)
+- Try log in using email (all cases), correct and incorrect passwords, inactive users, deleted users.
+
+### 3. What risks does this bring
+- No rate limiting or lockout mechanism allows attackers to try many passwords.
+- If JWTs are not properly invalidated on logout or password change, old tokens may remain valid.
+- If JWTs are not securely stored on the client, they can be stolen and reused.
+- Users may be unable to log in due to case mismatches or inactive accounts.
+
+</details>
+
+<details>
 <summary>Add Register user endpoint</summary>
 
 ## Feature / Fix Name:
