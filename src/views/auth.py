@@ -45,7 +45,7 @@ def login():
         user.password, req_json["password"]
     ):
         abort(HTTPStatus.UNAUTHORIZED, message="Invalid email or password")
-    access_token = create_access_token(identity=str(user.id))
+    access_token = create_access_token(identity=user)
     return jsonify({"access_token": access_token}), HTTPStatus.OK
 
 
