@@ -9,6 +9,7 @@ import os
 from src.views.notes import note_blueprint
 from src.views.categories import category_blueprint
 from src.views.auth import auth_blueprint
+from src.models.users import User
 from .extensions import db, migrate, bcrypt, jwt
 
 
@@ -30,6 +31,19 @@ def create_app():
     jwt.init_app(app)
 
     from . import models_registry  # noqa: F401
+
+    @jwt.user_identity_loader
+    def user_identity_lookup(user):
+        return str(user.id)
+
+    @jwt.user_lookup_loader
+    def user_lookup_callback(_jwt_header, jwt_data):
+        identity = jwt_data["sub"]
+        return db.session.execute(
+            User.select_active().where(
+                User.active.is_(True), User.id == identity
+            )
+        ).scalar_one_or_none()
 
     @app.errorhandler(HTTPStatus.UNPROCESSABLE_ENTITY)
     def handle_unprocessable_entity(err):

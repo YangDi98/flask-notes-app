@@ -80,6 +80,12 @@ Add Login
 - If JWTs are not securely stored on the client, they can be stolen and reused.
 - Users may be unable to log in due to case mismatches or inactive accounts.
 
+### 4. Future considerations
+- Token storage on the client
+- Logout/ token revocation
+- Refresh tokens
+- Role-based access
+
 </details>
 
 <details>
