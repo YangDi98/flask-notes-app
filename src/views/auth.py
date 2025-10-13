@@ -4,15 +4,18 @@ from sqlalchemy import select
 from http import HTTPStatus
 from flask_jwt_extended import (
     create_access_token,
-    get_jwt_identity,
+    create_refresh_token,
+    set_refresh_cookies,
     jwt_required,
+    current_user,
+    unset_jwt_cookies,
 )
 
 from src.schemas.auth import RegisterSchema, UserSchema
 from src.extensions import db, bcrypt
 from src.models.users import User
 
-auth_blueprint = Blueprint("auth", __name__, url_prefix="/")
+auth_blueprint = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @auth_blueprint.route("/register", methods=["POST"])
@@ -46,11 +49,37 @@ def login():
     ):
         abort(HTTPStatus.UNAUTHORIZED, message="Invalid email or password")
     access_token = create_access_token(identity=user)
+    refresh_token = create_refresh_token(identity=user)
+    response = jsonify({"access_token": access_token})
+    set_refresh_cookies(response, refresh_token)
+    return response, HTTPStatus.OK
+
+
+@auth_blueprint.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    access_token = create_access_token(identity=current_user)
     return jsonify({"access_token": access_token}), HTTPStatus.OK
+
+
+@auth_blueprint.route("/logout", methods=["POST"])
+@jwt_required()
+def logout():
+    current_user.update({"last_logout_at": db.func.now()}, commit=True)
+    response = jsonify({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    return response, HTTPStatus.OK
 
 
 @auth_blueprint.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
-    current_user = get_jwt_identity()
-    return jsonify({"logged_in_as": current_user}), 200
+    return (
+        jsonify(
+            {
+                "logged_in_as": f"{current_user.first_name} "
+                f"{current_user.last_name}"
+            }
+        ),
+        200,
+    )

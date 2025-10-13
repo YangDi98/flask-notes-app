@@ -45,6 +45,63 @@
 **Entry:**
 
 <details>
+<summary>Logout</summary>
+User clicks “Logout” →
+Backend endpoint /logout →
+  1. Update user.last_logout_at = now
+  2. Clear refresh token cookie
+Frontend:
+  - Receives response
+  - Removes access token from memory
+User is now fully logged out:
+  - Access token in memory is gone
+  - Refresh token in cookie is gone
+  - Any old refresh token cannot be used due to last_logout_at check
+
+</details>
+
+
+<details>
+<summary>Refresh Token</summary>
+
+## Feature / Fix Name:
+Fefresh Token
+Add refresh token endpoint to allow users to get a new access token without logging in again.
+Refresh-token lives for 7 days and access-token lives for 30 minutes. This allows users to stay logged in.
+Login:
+  Backend → sets access token in response body
+            sets refresh token in HttpOnly cookie
+
+Frontend uses access token → API requests
+
+Access token expires:
+  Frontend calls /refresh (cookie automatically sent)
+  Backend validates refresh token → issues new access token (refresh token needs to be valid and not issued before last_logout_at)
+  Frontend replaces old access token with new one
+
+
+### 1. What could go wrong?
+- There isn't a way to invalidate/blacklist token yet. So after logout the refresh token/access token is still valid.
+- Token not invalidated on password change.
+- Token not invalidated if user is deleted or deactivated.
+
+### 2. Test Plan
+- Try using an old refresh token after logout or password change.
+- Attempt to use a refresh token for a deleted or deactivated user.
+- Attempt to use a refresh token from another device or session.
+- Try using an expired or malformed refresh token.
+
+### 3. Future Considerations
+- Invalidate tokens after:
+  - Logout
+  - Password change
+  - User is deleted or deactivated
+
+
+
+</details>
+
+<details>
 <summary>Authorization</summary>
 
 ## Feature / Fix Name:
