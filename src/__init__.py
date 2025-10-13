@@ -24,6 +24,9 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # silence warnings
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)
+    app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
+    app.config["JWT_REFRESH_COOKIE_PATH"] = "/auth/refresh"
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = True
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -41,7 +44,7 @@ def create_app():
         identity = jwt_data["sub"]
         return db.session.execute(
             User.select_active().where(
-                User.active.is_(True), User.id == identity
+                User.active.is_(True), User.id == int(identity)
             )
         ).scalar_one_or_none()
 

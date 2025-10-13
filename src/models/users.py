@@ -4,6 +4,7 @@ from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
 from flask_smorest import abort
+from datetime import datetime
 
 if TYPE_CHECKING:
     from src.models.notes import Note
@@ -20,6 +21,9 @@ class User(CreateUpdateModel, SoftDeleteModel):
         Boolean, nullable=False, default=True, server_default="1"
     )
     password: Mapped[str] = mapped_column(String(255), nullable=True)
+    last_logout_at: Mapped[datetime] = mapped_column(
+        db.DateTime, nullable=True
+    )
 
     notes: Mapped[list["Note"]] = relationship(back_populates="user")
     categories: Mapped[list["Category"]] = relationship(back_populates="user")
