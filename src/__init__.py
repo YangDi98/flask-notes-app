@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_smorest import Api
 from marshmallow.exceptions import ValidationError
 from http import HTTPStatus
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from dotenv import load_dotenv
 import os
 
@@ -47,6 +47,21 @@ def create_app():
                 User.active.is_(True), User.id == int(identity)
             )
         ).scalar_one_or_none()
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        user = db.session.execute(
+            User.select_with_deleted().where(
+                User.id == int(jwt_payload["sub"])
+            )
+        ).scalar_one_or_none()
+        if user is None or user.deleted_at is not None or not user.active:
+            return True
+        last_logout = user.last_logout_at
+        if last_logout is None:
+            return False
+        token_iat = datetime.fromtimestamp(jwt_payload["iat"], tz=timezone.utc)
+        return token_iat < last_logout.replace(tzinfo=timezone.utc)
 
     @app.errorhandler(HTTPStatus.UNPROCESSABLE_ENTITY)
     def handle_unprocessable_entity(err):

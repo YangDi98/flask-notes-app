@@ -60,6 +60,44 @@ User is now fully logged out:
 
 </details>
 
+<details>
+<summary> Add Update Password </summary>
+
+## Feature / Fix Name:
+Allow logged in user to change password
+
+### 1. What could go wrong?
+- They can reuse the current password.
+- They can reuse previous passwords.
+- Whoever gets the access token can change password for the user.
+- After password change, old tokens remain valid.
+
+### 2. Test Plan
+- Test change password for users using valid tokens and expired ones.
+
+### 3. Future Considerations
+- Set up notification so the the user is notified when their password changes.
+
+</details>
+
+<details>
+<summary>Invalidate token</summary>
+
+## Feature / Fix Name:
+Invalidate token if user has logged out.
+
+### 1. What could go wrong?
+- Timezone inconsistencies if database stores time in a different timezone than utc this will cause issues.
+- Database hit on every request.
+- No caching. User data is fetched fresh every time instead of being cached.
+
+### 2. Testing
+- Test making requests after logout. 
+
+### 3. Future considerations
+- Add caching for user data.
+</details>
+
 
 <details>
 <summary>Refresh Token</summary>

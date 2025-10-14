@@ -11,7 +11,7 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 
-from src.schemas.auth import RegisterSchema, UserSchema
+from src.schemas.auth import RegisterSchema, UserSchema, UpdatePasswordSchema
 from src.extensions import db, bcrypt
 from src.models.users import User
 
@@ -35,6 +35,22 @@ def register(req_json):
     db.session.add(user)
     db.session.commit()
     return user, HTTPStatus.CREATED
+
+
+@auth_blueprint.route("/update_password", methods=["POST"])
+@auth_blueprint.arguments(UpdatePasswordSchema, location="json")
+@auth_blueprint.response(200, UserSchema)
+@jwt_required()
+def update_password(req_json):
+    user = current_user
+    if not bcrypt.check_password_hash(user.password, req_json["password"]):
+        abort(HTTPStatus.UNAUTHORIZED, message="Invalid current password")
+
+    hashed = bcrypt.generate_password_hash(req_json["new_password"]).decode(
+        "utf-8"
+    )
+    user.update({"password": hashed}, commit=True)
+    return user, HTTPStatus.OK
 
 
 @auth_blueprint.route("/login", methods=["POST"])
