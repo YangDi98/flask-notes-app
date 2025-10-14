@@ -3,6 +3,21 @@ from marshmallow import Schema, fields, validate, pre_load, ValidationError
 import re
 
 
+def validate_password(password: str):
+    reg = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$#%])[A-Za-z\d@$#%]{9,}$"
+    pat = re.compile(reg)
+
+    mat = re.search(pat, password)
+
+    # Have at least one number
+    # Have at least one uppercase letter
+    # Have at least one lowercase letter
+    # Have at least one special character
+
+    if not mat:
+        raise ValidationError("Invalid Password")
+
+
 class RegisterSchema(Schema):
     first_name = fields.Str(
         required=True, validate=validate.Length(min=1, max=50)
@@ -31,18 +46,21 @@ class RegisterSchema(Schema):
         mat_email = re.search(pat_email, data["email"])
         if not mat_email:
             raise ValidationError("Invalid Email Address")
-        reg = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$#%])[A-Za-z\d@$#%]{9,}$"
-        pat = re.compile(reg)
+        validate_password(data["password"])
+        return data
 
-        mat = re.search(pat, data["password"])
 
-        # Have at least one number
-        # Have at least one uppercase letter
-        # Have at least one lowercase letter
-        # Have at least one special character
+class UpdatePasswordSchema(Schema):
+    password = fields.Str(
+        required=True, validate=validate.Length(min=9, max=128)
+    )
+    new_password = fields.Str(
+        required=True, validate=validate.Length(min=9, max=128)
+    )
 
-        if not mat:
-            raise ValidationError("Invalid Password")
+    @pre_load
+    def process_input(self, data, **kwargs):
+        validate_password(data["new_password"])
         return data
 
 
