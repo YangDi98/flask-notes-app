@@ -26,7 +26,7 @@ def register(req_json):
         select(User).where(User.email == req_json["email"])
     ).scalar_one_or_none()
     if existing_user:
-        abort(HTTPStatus.CONFLICT, message="email already exists")
+        abort(HTTPStatus.CONFLICT, message="Email already registered")
 
     hashed = bcrypt.generate_password_hash(req_json["password"]).decode(
         "utf-8"
@@ -45,11 +45,7 @@ def update_password(req_json):
     user = current_user
     if not bcrypt.check_password_hash(user.password, req_json["password"]):
         abort(HTTPStatus.UNAUTHORIZED, message="Invalid current password")
-
-    hashed = bcrypt.generate_password_hash(req_json["new_password"]).decode(
-        "utf-8"
-    )
-    user.update({"password": hashed}, commit=True)
+    user.set_password(req_json["new_password"])
     return user, HTTPStatus.OK
 
 
@@ -82,7 +78,7 @@ def refresh():
 @jwt_required()
 def logout():
     current_user.update({"last_logout_at": db.func.now()}, commit=True)
-    response = jsonify({"msg": "logout successful"})
+    response = jsonify({"message": "logout successful"})
     unset_jwt_cookies(response)
     return response, HTTPStatus.OK
 
