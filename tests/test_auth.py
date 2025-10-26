@@ -92,10 +92,40 @@ class TestAuth:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Input Failed Validation"
 
+    def test_register_user_uppercase_email(self, client, app, db_session):
+        response = client.post(
+            "/auth/register",
+            json={
+                "first_name": "uppercaseemail",
+                "last_name": "tester",
+                "email": "UPPERCASEEMAIL@EXAMPLE.COM",
+                "password": "Validpass123@",
+            },
+        )
+        assert response.status_code == HTTPStatus.CREATED
+        assert response.json.get("email") == "uppercaseemail@example.com"
+
     def test_login_valid_user(self, client, app, test_user):
         response = client.post(
             "/auth/login",
             json={"email": test_user.email, "password": "password123@AAA"},
+        )
+        assert response.status_code == HTTPStatus.OK
+        assert "access_token" in response.get_json()
+        # Check if refresh token cookie is set
+        cookies = response.headers.getlist("Set-Cookie")
+        refresh_cookie_found = any(
+            "refresh_token=" in cookie for cookie in cookies
+        )
+        assert refresh_cookie_found, "Refresh token cookie should be set"
+
+    def test_login_valid_user_uppercase_email(self, client, app, test_user):
+        response = client.post(
+            "/auth/login",
+            json={
+                "email": test_user.email.upper(),
+                "password": "password123@AAA",
+            },
         )
         assert response.status_code == HTTPStatus.OK
         assert "access_token" in response.get_json()

@@ -46,13 +46,11 @@ class AuthenticatedClient:
 
 @pytest.fixture(scope="session")
 def app():
-    app = create_app()
-    app.config.update(
-        {
-            "TESTING": True,
-            "SQLALCHEMY_DATABASE_URI": f"sqlite:///{TEST_DB_PATH}",
-        }
-    )
+    test_config = {
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": f"sqlite:///{TEST_DB_PATH}",
+    }
+    app = create_app(test_config)
     with app.app_context():
         db.create_all()
         yield app
