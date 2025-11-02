@@ -1,5 +1,5 @@
 from flask_smorest import Blueprint
-from flask import url_for
+from flask import url_for, request
 from http import HTTPStatus
 from flask_jwt_extended import jwt_required
 
@@ -27,18 +27,16 @@ def get_notes(args, user_id):
     notes = Note.filter(user_id=user_id, **args)
     next_cursor = notes[-1].created_at if notes else None
     next_id = notes[-1].id if notes else None
-    url = (
-        url_for(
-            "note.get_notes",
+    url = None
+    if (next_cursor or next_id) and request.endpoint:
+        url = url_for(
+            request.endpoint,
             user_id=user_id,
             cursor_created_at=next_cursor,
             cursor_id=next_id,
             limit=args.get("limit", 100),
             _external=False,
         )
-        if next_cursor or next_id
-        else None
-    )
     return {"data": notes, "next": url}
 
 

@@ -89,7 +89,7 @@ def register_jwt_handlers(jwt_manager):
         if last_logout is None:
             return False
         token_iat = datetime.fromtimestamp(jwt_payload["iat"], tz=timezone.utc)
-        return token_iat < last_logout.replace(tzinfo=timezone.utc)
+        return token_iat <= last_logout.replace(tzinfo=timezone.utc)
 
     @jwt_manager.unauthorized_loader
     def jwt_missing(callback):
@@ -120,20 +120,29 @@ def register_jwt_handlers(jwt_manager):
         )
 
 
-def create_app():
+def create_app(test_config=None):
     load_dotenv()
     app = Flask("Flask API")
     app.config["API_TITLE"] = "Notes API"
     app.config["API_VERSION"] = "1.0.0"
     app.config["OPENAPI_VERSION"] = "3.0.2"
+    app.config["OPENAPI_URL_PREFIX"] = "/"
+    app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+    app.config["OPENAPI_SWAGGER_UI_URL"] = (
+        "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+    )
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes_db.sqlite"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # silence warnings
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
     app.config["JWT_REFRESH_COOKIE_PATH"] = "/auth/refresh"
     app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+
+    if test_config:
+        app.config.update(test_config)
 
     db.init_app(app)
     migrate.init_app(app, db)

@@ -1,10 +1,12 @@
 from src.models.base_models import CreateUpdateModel, SoftDeleteModel
-from src.extensions import db
+from src.extensions import db, bcrypt
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
 from flask_smorest import abort
 from datetime import datetime
+
+from src.schemas.auth import validate_password
 
 if TYPE_CHECKING:
     from src.models.notes import Note
@@ -55,3 +57,8 @@ class User(CreateUpdateModel, SoftDeleteModel):
         if result is None:
             abort(404)
         return result
+
+    def set_password(self, password: str, commit: bool = True):
+        validate_password(password)
+        hashed = bcrypt.generate_password_hash(password).decode("utf-8")
+        self.update({"password": hashed}, commit=commit)
