@@ -26,5 +26,5 @@ Scalability:
 - Can move to keep a blacklist of tokens in db/redis.
 - Can add caching. 
 - Can look into token versioning in user records to invalidate all tokens at once. 
-Security Practice:
- A(01)? Broken Access Control
+### Security Practice:
+ A(01) Broken Access Control

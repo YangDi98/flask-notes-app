@@ -126,6 +126,11 @@ def create_app(test_config=None):
     app.config["API_TITLE"] = "Notes API"
     app.config["API_VERSION"] = "1.0.0"
     app.config["OPENAPI_VERSION"] = "3.0.2"
+    app.config["OPENAPI_URL_PREFIX"] = "/"
+    app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+    app.config["OPENAPI_SWAGGER_UI_URL"] = (
+        "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+    )
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes_db.sqlite"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # silence warnings
