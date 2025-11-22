@@ -96,7 +96,7 @@ class Note(CreateUpdateModel, SoftDeleteModel):
         elif cursor_created_at:
             stmt = stmt.where(Note.created_at < cursor_created_at)
         if title:
-            stmt = stmt.where(Note.title.like(f"%{title}%"))
+            stmt = stmt.where(Note.title.ilike(f"%{title}%"))
         if start_date:
             stmt = stmt.where(Note.created_at >= start_date)
         if end_date:

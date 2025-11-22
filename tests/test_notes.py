@@ -107,7 +107,9 @@ class TestNotes:
         assert "Note 2" in titles
         assert "Note 3" in titles
 
-    def test_get_notes_filter_title(self, test_user, authenticated_client):
+    def test_get_notes_filter_title(
+        self, test_user, authenticated_client, db_session
+    ):
         Note.create(
             {
                 "user_id": test_user.id,
@@ -122,6 +124,7 @@ class TestNotes:
                 "content": "Finish the report and email it to the team.",
             }
         )
+        db_session.session.commit()
 
         response = authenticated_client.get(
             f"/users/{test_user.id}/notes/?title=shop"

@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from http import HTTPStatus
+from freezegun import freeze_time
 from src.models.users import User
 
 
@@ -192,17 +193,18 @@ class TestAuth:
         assert response.json.get("message") == "logout successful"
         assert test_user.last_logout_at is not None
 
-    def test_protected_route_after_logout(
-        self, test_user, authenticated_client
-    ):
-        # First logout
-        response = authenticated_client.post("/auth/logout")
-        assert response.status_code == HTTPStatus.OK
+    def test_protected_route_after_logout(self, test_user, frozen_time_client):
+        authenticated_client = frozen_time_client("2023-01-01 12:00:00")
+        with freeze_time("2023-01-01 12:05:00"):
 
-        # Now try to access protected route
-        response = authenticated_client.get("/auth/protected")
-        assert response.status_code == HTTPStatus.UNAUTHORIZED
-        assert response.json.get("message") == "Token has been revoked."
+            # First logout
+            response = authenticated_client.post("/auth/logout")
+            assert response.status_code == HTTPStatus.OK
+
+            # Now try to access protected route
+            response = authenticated_client.get("/auth/protected")
+            assert response.status_code == HTTPStatus.UNAUTHORIZED
+            assert response.json.get("message") == "Token has been revoked."
 
     def test_protected_route_with_authenticated_user(
         self, test_user, authenticated_client

@@ -1,0 +1,31 @@
+version: "3.13"
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    env_file:
+      - .env  # Loaded at runtime, not built into image
+    environment:
+      - FLASK_APP=src:create_app
+      - DATABASE_URL=postgresql://myuser:mypassword@db:5432/notes_db
+    volumes:
+      - .:/app  # Mount everything, accept that secrets are visible
+  db:
+    image: postgres:16-alpine             # official Postgres image
+    container_name: my_postgres      # optional, easy reference
+    ports:
+      - "5433:5432"                  # host:container port mapping
+    environment:
+      POSTGRES_USER: myuser          # database user
+      POSTGRES_PASSWORD: mypassword  # password for the user
+      POSTGRES_DB: notes_db           # default database created on startup
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # persistent storage
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql  # initialization script
+    restart: unless-stopped           # automatically restart unless manually stopped
+
+volumes:
+  pgdata:

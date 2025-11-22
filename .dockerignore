@@ -1,0 +1,12 @@
+.env
+.env.*
+*.env
+__pycache__/
+*.pyc
+.git/
+.gitignore
+README.md
+.pytest_cache/
+node_modules/
+instance/
+htmlcov/
