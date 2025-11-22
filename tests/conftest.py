@@ -1,5 +1,7 @@
 import pytest
 import os
+from freezegun import freeze_time
+from flask_migrate import upgrade
 from src import create_app
 from src.extensions import db
 from src.models.users import User
@@ -48,16 +50,14 @@ class AuthenticatedClient:
 def app():
     test_config = {
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": f"sqlite:///{TEST_DB_PATH}",
+        "SQLALCHEMY_DATABASE_URI": os.getenv(
+            "TEST_DATABASE_URL", f"sqlite:///{TEST_DB_PATH}"
+        ),
     }
     app = create_app(test_config)
     with app.app_context():
-        db.create_all()
+        upgrade()
         yield app
-        # TEARDOWN PHASE (runs after all tests)
-        db.drop_all()
-    if os.path.exists(TEST_DB_PATH):
-        os.remove(TEST_DB_PATH)
 
 
 @pytest.fixture(autouse=True)
@@ -65,9 +65,18 @@ def clean_db(app):
     yield  # Run test first
     # Cleanup after each test
     with app.app_context():
+        db.session.rollback()
         db.session.remove()
-        db.drop_all()
-        db.create_all()
+
+        # Clear all tables using a fresh connection
+        with db.engine.connect() as connection:
+            transaction = connection.begin()
+            for table in reversed(db.metadata.sorted_tables):
+                connection.execute(table.delete())
+            transaction.commit()
+
+        # Optional: dispose engine if you see pytest hang at the end
+        db.engine.dispose()
 
 
 @pytest.fixture
@@ -80,7 +89,8 @@ def db_session(app):
 @pytest.fixture
 def client(app):
     """Return a test client for making requests."""
-    return app.test_client()
+    with app.test_client() as client:
+        yield client
 
 
 @pytest.fixture
@@ -109,3 +119,23 @@ def authenticated_client(client, test_user, app):
     )
     token = response.get_json()["access_token"]
     return AuthenticatedClient(client, token)
+
+
+@pytest.fixture
+def frozen_time_client(client, test_user):
+    """Returns a function that creates authenticated client
+    within frozen time."""
+
+    def create_client_at_time(frozen_time):
+        with freeze_time(frozen_time):
+            response = client.post(
+                "/auth/login",
+                json={
+                    "email": test_user.email,
+                    "password": "password123@AAA",
+                },
+            )
+            token = response.get_json()["access_token"]
+            return AuthenticatedClient(client, token)
+
+    return create_client_at_time
