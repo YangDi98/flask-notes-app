@@ -24,20 +24,20 @@ jobs:
     
     - name: Start all services
       run: |
-        docker-compose up --build -d
+        docker compose up --build -d
     
     - name: Run migrations
       run: |
-        docker-compose exec web flask db upgrade
+        docker compose exec web flask db upgrade
         
     - name: Run tests
       run: |
-        docker-compose exec web pytest
+        docker compose exec web pytest
         
     - name: Run linting
       run: |
-        docker-compose exec web python notes-cli.py lint
+        docker compose exec web python notes-cli.py lint
         
     - name: Cleanup
       run: |
-        docker-compose down
+        docker compose down
