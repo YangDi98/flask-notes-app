@@ -76,6 +76,14 @@ def register_jwt_handlers(jwt_manager):
             )
         ).scalar_one_or_none()
 
+    @jwt_manager.user_lookup_error_loader
+    def user_lookup_error_callback(jwt_header, jwt_data):
+        return error_response(
+            HTTPStatus.UNAUTHORIZED,
+            "Unauthorized",
+            "User not found or inactive.",
+        )
+
     @jwt_manager.token_in_blocklist_loader
     def check_if_token_revoked(jwt_header, jwt_payload):
         user = db.session.execute(
@@ -132,7 +140,9 @@ def create_app(test_config=None):
         "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
     )
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes_db.sqlite"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "DATABASE_URL", "sqlite:///notes_db.sqlite"
+    )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False  # silence warnings
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)

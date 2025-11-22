@@ -1,0 +1,27 @@
+# Base image
+FROM python:3.13-alpine
+
+# Set work directory
+WORKDIR /app
+
+# Install Poetry
+RUN pip install --no-cache-dir poetry==2.1.3
+
+# Copy dependency files first
+COPY pyproject.toml poetry.lock ./
+
+# Install dependencies (without creating a virtualenv)
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --no-root
+
+# Copy app source
+COPY . .
+
+# Set environment variables
+ENV FLASK_APP=src:create_app
+ENV FLASK_RUN_HOST=0.0.0.0
+# Expose Flask port
+EXPOSE 5000
+
+# Start the Flask app
+CMD ["flask", "run"]

@@ -1,0 +1,1 @@
+CREATE DATABASE notes_test_db OWNER myuser;
