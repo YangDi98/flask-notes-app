@@ -1,0 +1,43 @@
+name: Flask Notes Application
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Create .env file for CI
+      run: |
+        echo "JWT_SECRET_KEY=IAbSvjaz9OPV9TEpy4XiqNXr1ZhaJ28Ue8bIc4ukanM" > .env
+        echo "DATABASE_URL=postgresql://myuser:mypassword@db:5432/notes_db" >> .env
+        echo "TEST_DATABASE_URL=postgresql://myuser:mypassword@db:5432/notes_test_db" >> .env
+    
+    - name: Start all services
+      run: |
+        docker compose up --build -d
+    
+    - name: Run migrations
+      run: |
+        docker compose exec web flask db upgrade
+        
+    - name: Run tests
+      run: |
+        docker compose exec web pytest
+        
+    - name: Run linting
+      run: |
+        docker compose exec web python notes-cli.py lint
+        
+    - name: Cleanup
+      run: |
+        docker compose down

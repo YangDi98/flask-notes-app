@@ -3,7 +3,6 @@ from flask_smorest import Api
 from marshmallow.exceptions import ValidationError
 from http import HTTPStatus
 from datetime import timedelta, datetime, timezone
-from dotenv import load_dotenv
 import os
 
 from src.views.notes import note_blueprint
@@ -129,7 +128,6 @@ def register_jwt_handlers(jwt_manager):
 
 
 def create_app(test_config=None):
-    load_dotenv()
     app = Flask("Flask API")
     app.config["API_TITLE"] = "Notes API"
     app.config["API_VERSION"] = "1.0.0"

@@ -24,7 +24,7 @@ docker-compose exec web flask db upgrade
 ```
 docker-compose exec web pytest
 # Run specific test file
-docker-compose exec web pytest /tests/test_auth.py 
+docker-compose exec web pytest tests/test_auth.py 
 ```
 ### Linting
 We use flake8 and black for linting and formatting. Run:
