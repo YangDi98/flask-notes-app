@@ -2,6 +2,7 @@ version: "3.13"
 services:
   web:
     build: .
+    command: flask run
     ports:
       - "5000:5000"
     depends_on:

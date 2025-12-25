@@ -12,7 +12,7 @@ COPY pyproject.toml poetry.lock ./
 
 # Install dependencies (without creating a virtualenv)
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root
+    && poetry install --no-interaction --no-ansi --no-root --only=main
 
 # Copy app source
 COPY . .
@@ -24,4 +24,4 @@ ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
 
 # Start the Flask app
-CMD ["flask", "run"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "src:create_app()"]
