@@ -1,7 +1,9 @@
 version: "3.13"
 services:
   web:
-    build: .
+    build:
+      context: .
+      target: dev                      # use the 'dev' stage from Dockerfile
     command: flask run
     ports:
       - "5000:5000"
