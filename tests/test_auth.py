@@ -193,7 +193,7 @@ class TestAuth:
         assert response.json.get("message") == "logout successful"
         assert test_user.last_logout_at is not None
 
-    def test_protected_route_after_logout(self, test_user, frozen_time_client):
+    def test_who_am_i_route_after_logout(self, test_user, frozen_time_client):
         authenticated_client = frozen_time_client("2023-01-01 12:00:00")
         with freeze_time("2023-01-01 12:05:00"):
 
@@ -202,12 +202,20 @@ class TestAuth:
             assert response.status_code == HTTPStatus.OK
 
             # Now try to access protected route
-            response = authenticated_client.get("/auth/protected")
+            response = authenticated_client.get("/auth/who_am_i")
             assert response.status_code == HTTPStatus.UNAUTHORIZED
             assert response.json.get("message") == "Token has been revoked."
 
-    def test_protected_route_with_authenticated_user(
+    def test_who_am_i_route_with_authenticated_user(
         self, test_user, authenticated_client
     ):
-        response = authenticated_client.get(f"/users/{test_user.id}/notes/")
+        response = authenticated_client.get("/auth/who_am_i")
+
         assert response.status_code == 200
+        assert response.get_json() == {
+            "id": test_user.id,
+            "email": test_user.email,
+            "active": test_user.active,
+            "first_name": test_user.first_name,
+            "last_name": test_user.last_name,
+        }
