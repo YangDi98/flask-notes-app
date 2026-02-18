@@ -29,6 +29,10 @@ docker-compose exec web pytest tests/test_auth.py
 ### Linting
 We use flake8 and black for linting and formatting. Run:
 ```
+./nt lint
+```
+if on windows
+```
 docker-compose exec web python notes-cli.py lint
 ```
 ## License

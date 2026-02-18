@@ -219,3 +219,33 @@ class TestAuth:
             "first_name": test_user.first_name,
             "last_name": test_user.last_name,
         }
+
+    def test_update_password_wrong_current_password(
+        self, test_user, authenticated_client
+    ):
+        response = authenticated_client.post(
+            "/auth/update_password",
+            json={
+                "password": "wrongcurrentpassword",
+                "new_password": "Newpass123@A",
+            },
+        )
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.json.get("message") == "Invalid current password"
+
+    def test_update_password_valid(self, test_user, authenticated_client):
+        response = authenticated_client.post(
+            "/auth/update_password",
+            json={
+                "password": "password123@AAA",
+                "new_password": "Newpass123@A",
+            },
+        )
+        assert response.status_code == HTTPStatus.OK
+        # Now try to login with the new password
+        login_response = authenticated_client.post(
+            "/auth/login",
+            json={"email": test_user.email, "password": "Newpass123@A"},
+        )
+        assert login_response.status_code == HTTPStatus.OK
+        assert "access_token" in login_response.get_json()
