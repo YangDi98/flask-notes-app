@@ -13,6 +13,9 @@ class NoteSchema(Schema):
     archived = fields.Int()
     content = fields.Str()
     category_id = fields.Int(allow_none=True)
+    category = fields.Nested(
+        "CategorySchema", only=["id", "name"], dump_only=True
+    )
     deleted_at = fields.DateTime(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)

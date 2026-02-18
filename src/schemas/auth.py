@@ -51,9 +51,7 @@ class RegisterSchema(Schema):
 
 
 class UpdatePasswordSchema(Schema):
-    password = fields.Str(
-        required=True, validate=validate.Length(min=9, max=128)
-    )
+    password = fields.Str(required=True)
     new_password = fields.Str(
         required=True, validate=validate.Length(min=9, max=128)
     )
