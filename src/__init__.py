@@ -9,7 +9,7 @@ from src.views.notes import note_blueprint
 from src.views.categories import category_blueprint
 from src.views.auth import auth_blueprint
 from src.models.users import User
-from .extensions import db, migrate, bcrypt, jwt
+from .extensions import db, migrate, bcrypt, jwt, cors
 
 
 def error_response(status, error, message, details=None):
@@ -149,6 +149,24 @@ def create_app(test_config=None):
     app.config["JWT_REFRESH_COOKIE_PATH"] = "/auth/refresh"
     app.config["JWT_COOKIE_CSRF_PROTECT"] = True
 
+    # CORS Configuration
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    app.config["CORS_ORIGINS"] = [frontend_url]
+    app.config["CORS_ALLOW_HEADERS"] = [
+        "Content-Type",
+        "Authorization",
+        "X-CSRF-TOKEN",
+    ]
+    app.config["CORS_METHODS"] = [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+        "OPTIONS",
+    ]
+    app.config["CORS_SUPPORTS_CREDENTIALS"] = True
+
     if test_config:
         app.config.update(test_config)
 
@@ -156,6 +174,13 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
+    cors.init_app(
+        app,
+        origins=app.config["CORS_ORIGINS"],
+        allow_headers=app.config["CORS_ALLOW_HEADERS"],
+        methods=app.config["CORS_METHODS"],
+        supports_credentials=app.config["CORS_SUPPORTS_CREDENTIALS"],
+    )
 
     from . import models_registry  # noqa: F401
 

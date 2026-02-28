@@ -21,6 +21,7 @@ dependencies = [
     "psycopg2-binary (>=2.9.11,<3.0.0)",
     "freezegun (>=1.5.5,<2.0.0)",
     "gunicorn (>=23.0.0,<24.0.0)",
+    "flask-cors (>=6.0.2,<7.0.0)",
 ]
 
 [tool.poetry]
