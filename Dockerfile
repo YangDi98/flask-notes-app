@@ -37,5 +37,4 @@ RUN poetry install --no-interaction --no-ansi --no-root --only=main
 # Copy app source
 COPY . .
 
-
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "src:create_app()"]
