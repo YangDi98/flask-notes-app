@@ -171,6 +171,8 @@ def create_app(test_config=None):
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
     app.config["JWT_REFRESH_COOKIE_PATH"] = "/auth/refresh"
     app.config["JWT_COOKIE_CSRF_PROTECT"] = True
+    app.config["JWT_COOKIE_SAMESITE"] = None
+    app.config["JWT_COOKIE_SECURE"] = True
 
     # CORS Configuration
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
