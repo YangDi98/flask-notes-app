@@ -19,6 +19,7 @@ docker-compose up --build
 ```
 docker-compose exec web flask db upgrade
 ```
+
 ## Development
 ### Run tests
 ```
@@ -34,6 +35,19 @@ We use flake8 and black for linting and formatting. Run:
 if on windows
 ```
 docker-compose exec web python notes-cli.py lint
+```
+
+### Add migration
+1. Update models
+```
+docker-compose exec web flask db migrate -m "message"
+```
+```
+docker-compose exec web flask db upgrade
+```
+### Add dependencies
+```
+docker-compose exec web poetry add <dependency>
 ```
 ## License
 This project is for learning purposes.

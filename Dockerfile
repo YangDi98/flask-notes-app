@@ -30,6 +30,9 @@ COPY . .
 # Start the Flask app
 CMD ["flask", "run"]
 
+# Compile translations
+RUN pybabel compile -d translations
+
 # ---------- PROD ----------
 FROM base AS prod
 
@@ -37,5 +40,7 @@ RUN poetry install --no-interaction --no-ansi --no-root --only=main
 # Copy app source
 COPY . .
 
+# Compile translations
+RUN pybabel compile -d translations
 
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "src:create_app()"]

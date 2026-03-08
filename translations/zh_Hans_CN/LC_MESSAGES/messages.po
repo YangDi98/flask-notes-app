@@ -1,0 +1,32 @@
+# Chinese (Simplified, China) translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Flask Notes App 1.0\n"
+"Report-Msgid-Bugs-To: support@flask-notes-app.com\n"
+"POT-Creation-Date: 2026-03-07 18:20+0000\n"
+"PO-Revision-Date: 2026-03-07 18:21+0000\n"
+"Last-Translator: Yang Di <yang.di2015@outlook.com>\n"
+"Language: zh_Hans_CN\n"
+"Language-Team: Chinese (Simplified) <zh-team@flask-notes-app.com>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: src/__init__.py:36
+msgid "You do not have permission to access this resource."
+msgstr "您没有权限访问此资源。"
+
+#: src/__init__.py:44
+msgid "The requested resource was not found."
+msgstr "请求的资源未找到。"
+
+#: src/__init__.py:52 src/__init__.py:61
+msgid "Input Failed Validation"
+msgstr "输入验证失败"
+

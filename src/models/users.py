@@ -26,6 +26,7 @@ class User(CreateUpdateModel, SoftDeleteModel):
     last_logout_at: Mapped[datetime] = mapped_column(
         db.DateTime, nullable=True
     )
+    preferred_language: Mapped[str] = mapped_column(String(10), nullable=True)
 
     notes: Mapped[list["Note"]] = relationship(back_populates="user")
     categories: Mapped[list["Category"]] = relationship(back_populates="user")
