@@ -2,11 +2,13 @@ from marshmallow import Schema, fields, validate, pre_load, ValidationError
 from flask_babel import gettext
 import re
 
-FIELD_NAMES = {
-    "first_name": gettext("First Name"),
-    "last_name": gettext("Last Name"),
-    "email": gettext("Email"),
-}
+
+def get_field_names():
+    return {
+        "first_name": gettext("First Name"),
+        "last_name": gettext("Last Name"),
+        "email": gettext("Email"),
+    }
 
 
 def validate_password(password: str):
@@ -42,10 +44,13 @@ class RegisterSchema(Schema):
         for field in fields:
             data[field] = data.get(field, "").strip()
             if not data[field]:
+                field_names = get_field_names()
                 raise ValidationError(
                     gettext(
-                        "%(field)s cannot be empty or just spaces",
-                        field=FIELD_NAMES.get(field, field),
+                        "%(field)s %(field_name)s "
+                        "cannot be empty or just spaces",
+                        field=field_names.get(field, field),
+                        field_name=field,
                     )
                 )
         data["email"] = data["email"].lower()
