@@ -10,6 +10,7 @@ from flask_jwt_extended import (
     current_user,
     unset_jwt_cookies,
 )
+from flask_babel import gettext
 
 from src.schemas.auth import RegisterSchema, UserSchema, UpdatePasswordSchema
 from src.extensions import db, bcrypt
@@ -26,7 +27,7 @@ def register(req_json):
         select(User).where(User.email == req_json["email"])
     ).scalar_one_or_none()
     if existing_user:
-        abort(HTTPStatus.CONFLICT, message="Email already registered")
+        abort(HTTPStatus.CONFLICT, message=gettext("Email already registered"))
 
     hashed = bcrypt.generate_password_hash(req_json["password"]).decode(
         "utf-8"
@@ -44,7 +45,10 @@ def register(req_json):
 def update_password(req_json):
     user = current_user
     if not bcrypt.check_password_hash(user.password, req_json["password"]):
-        abort(HTTPStatus.UNAUTHORIZED, message="Invalid current password")
+        abort(
+            HTTPStatus.UNAUTHORIZED,
+            message=gettext("Invalid current password"),
+        )
     user.set_password(req_json["new_password"])
     return user, HTTPStatus.OK
 
@@ -59,7 +63,10 @@ def login():
     if not user or not bcrypt.check_password_hash(
         user.password, req_json["password"]
     ):
-        abort(HTTPStatus.UNAUTHORIZED, message="Invalid email or password")
+        abort(
+            HTTPStatus.UNAUTHORIZED,
+            message=gettext("Invalid email or password"),
+        )
     access_token = create_access_token(identity=user)
     refresh_token = create_refresh_token(identity=user)
     response = jsonify({"access_token": access_token})
@@ -78,7 +85,7 @@ def refresh():
 @jwt_required()
 def logout():
     current_user.update({"last_logout_at": db.func.now()}, commit=True)
-    response = jsonify({"message": "logout successful"})
+    response = jsonify({"message": gettext("Logout successful")})
     unset_jwt_cookies(response)
     return response, HTTPStatus.OK
 

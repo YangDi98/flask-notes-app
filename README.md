@@ -49,5 +49,25 @@ docker-compose exec web flask db upgrade
 ```
 docker-compose exec web poetry add <dependency>
 ```
+### Add/Update Translation
+Extract strings
+```
+docker-compose exec web pybabel extract -F babel.cfg -o messages.pot .
+```
+If Update Existing Translations
+```
+docker-compose exec web pybabel update -i messages.pot -d translations
+```
+If add new translations
+```
+docker-compose exec web pybabel init -i messages.pot -d translations -l <language_code>
+```
+Note language code has to match what flask babel normalize to
+
+Compile Translations (After modifying .po files as needed)
+
+```
+docker-compose exec web pybabel compile -d translations
+```
 ## License
 This project is for learning purposes.

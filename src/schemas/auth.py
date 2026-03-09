@@ -1,6 +1,14 @@
 from marshmallow import Schema, fields, validate, pre_load, ValidationError
-
+from flask_babel import gettext
 import re
+
+
+def get_field_names():
+    return {
+        "first_name": gettext("First Name"),
+        "last_name": gettext("Last Name"),
+        "email": gettext("Email"),
+    }
 
 
 def validate_password(password: str):
@@ -15,7 +23,7 @@ def validate_password(password: str):
     # Have at least one special character
 
     if not mat:
-        raise ValidationError("Invalid Password")
+        raise ValidationError(gettext("Invalid Password"))
 
 
 class RegisterSchema(Schema):
@@ -36,16 +44,21 @@ class RegisterSchema(Schema):
         for field in fields:
             data[field] = data.get(field, "").strip()
             if not data[field]:
+                field_names = get_field_names()
                 raise ValidationError(
-                    f"{field.replace('_', ' ').title()} "
-                    f"cannot be empty or just spaces"
+                    gettext(
+                        "%(field)s %(field_name)s "
+                        "cannot be empty or just spaces",
+                        field=field_names.get(field, field),
+                        field_name=field,
+                    )
                 )
         data["email"] = data["email"].lower()
         reg_email = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         pat_email = re.compile(reg_email)
         mat_email = re.search(pat_email, data["email"])
         if not mat_email:
-            raise ValidationError("Invalid Email Address")
+            raise ValidationError(gettext("Invalid Email Address"))
         validate_password(data["password"])
         return data
 

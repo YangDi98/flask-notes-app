@@ -190,7 +190,7 @@ class TestAuth:
     def test_logout_user(self, test_user, authenticated_client):
         response = authenticated_client.post("/auth/logout")
         assert response.status_code == HTTPStatus.OK
-        assert response.json.get("message") == "logout successful"
+        assert response.json.get("message") == "Logout successful"
         assert test_user.last_logout_at is not None
 
     def test_who_am_i_route_after_logout(self, test_user, frozen_time_client):
