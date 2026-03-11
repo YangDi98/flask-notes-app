@@ -14,7 +14,7 @@ from src.models.categories import Category
 from src.views.utils import user_access_required
 
 note_blueprint = Blueprint(
-    "note", __name__, url_prefix="/users/<int:user_id>/notes"
+    "note", __name__, url_prefix="/api/users/<int:user_id>/notes"
 )
 
 

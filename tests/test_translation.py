@@ -7,7 +7,7 @@ class TestTranslation:
     def test_get_locale_with_default_language(self, client, app):
         with app.app_context():
             response = client.post(
-                "/auth/register",
+                "/api/auth/register",
                 json={
                     "first_name": "incomplete",
                     "password": "Validpass123@",
@@ -37,7 +37,7 @@ class TestTranslation:
         with app.app_context():
             # Test with Chinese Accept-Language header
             response = client.post(
-                "/auth/register",
+                "/api/auth/register",
                 json={
                     "first_name": "incomplete",
                     "password": "Validpass123@",
