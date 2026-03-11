@@ -15,7 +15,7 @@ from src.views.utils import user_access_required
 
 
 category_blueprint = Blueprint(
-    "category", __name__, url_prefix="/users/<int:user_id>/categories"
+    "category", __name__, url_prefix="/api/users/<int:user_id>/categories"
 )
 
 

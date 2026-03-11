@@ -31,7 +31,9 @@ class TestNotes:
                     "content": f"Content for note {i+1}",
                 }
             )
-        response = authenticated_client.get(f"/users/{test_user.id}/notes/")
+        response = authenticated_client.get(
+            f"/api/users/{test_user.id}/notes/"
+        )
 
         assert response.status_code == HTTPStatus.OK
         assert len(response.json["data"]) == 5
@@ -42,7 +44,7 @@ class TestNotes:
         )
         assert (
             response.json["next"]
-            == f"/users/{test_user.id}/notes/?cursor_created_at="
+            == f"/api/users/{test_user.id}/notes/?cursor_created_at="
             f"{expected_datetime}&cursor_id="
             f'{response.json["data"][-1]["id"]}&limit=100'
         )
@@ -63,7 +65,7 @@ class TestNotes:
                 }
             )
         first_response = authenticated_client.get(
-            f"/users/{test_user.id}/notes/?limit=2"
+            f"/api/users/{test_user.id}/notes/?limit=2"
         )
         assert first_response.status_code == HTTPStatus.OK
         assert len(first_response.json["data"]) == 2
@@ -97,7 +99,7 @@ class TestNotes:
         start_date = (now - timedelta(days=7)).isoformat() + "Z"
         end_date = now.isoformat() + "Z"
         response = authenticated_client.get(
-            f"/users/{test_user.id}/notes/?start_date="
+            f"/api/users/{test_user.id}/notes/?start_date="
             f"{start_date}&end_date={end_date}"
         )
 
@@ -127,7 +129,7 @@ class TestNotes:
         db_session.session.commit()
 
         response = authenticated_client.get(
-            f"/users/{test_user.id}/notes/?title=shop"
+            f"/api/users/{test_user.id}/notes/?title=shop"
         )
 
         assert response.status_code == HTTPStatus.OK
@@ -145,7 +147,9 @@ class TestNotes:
             },
             commit=True,
         )
-        response = authenticated_client.get(f"/users/{other_user.id}/notes/")
+        response = authenticated_client.get(
+            f"/api/users/{other_user.id}/notes/"
+        )
         assert response.status_code == HTTPStatus.FORBIDDEN
         assert (
             response.json["message"]
@@ -162,7 +166,7 @@ class TestNotes:
             commit=True,
         )
         response = authenticated_client.get(
-            f"/users/{test_user.id}/notes/{note.id}"
+            f"/api/users/{test_user.id}/notes/{note.id}"
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json["title"] == "Sample Note"
@@ -170,7 +174,7 @@ class TestNotes:
 
     def test_get_note_not_found(self, test_user, authenticated_client):
         response = authenticated_client.get(
-            f"/users/{test_user.id}/notes/9999"
+            f"/api/users/{test_user.id}/notes/9999"
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert (
@@ -188,7 +192,9 @@ class TestNotes:
             },
             commit=True,
         )
-        response = authenticated_client.get(f"/users/{other_user.id}/notes/")
+        response = authenticated_client.get(
+            f"/api/users/{other_user.id}/notes/"
+        )
         assert response.status_code == HTTPStatus.FORBIDDEN
         assert (
             response.json["message"]
@@ -201,7 +207,7 @@ class TestNotes:
             "content": "Content of the new note.",
         }
         response = authenticated_client.post(
-            f"/users/{test_user.id}/notes/", json=note_data
+            f"/api/users/{test_user.id}/notes/", json=note_data
         )
         assert response.status_code == HTTPStatus.CREATED
         assert response.json["title"] == "New Note"
@@ -221,7 +227,7 @@ class TestNotes:
             "content": "Updated content.",
         }
         response = authenticated_client.put(
-            f"/users/{test_user.id}/notes/{note.id}", json=update_data
+            f"/api/users/{test_user.id}/notes/{note.id}", json=update_data
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json["title"] == "Updated Title"
@@ -237,7 +243,7 @@ class TestNotes:
             commit=True,
         )
         response = authenticated_client.delete(
-            f"/users/{test_user.id}/notes/{note.id}"
+            f"/api/users/{test_user.id}/notes/{note.id}"
         )
         assert response.status_code == HTTPStatus.NO_CONTENT
 

@@ -7,7 +7,7 @@ from src.models.users import User
 class TestAuth:
     def test_register_new_user(self, client, app, db_session):
         response = client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "first_name": "newuser",
                 "last_name": "tester",
@@ -38,7 +38,7 @@ class TestAuth:
 
         # Now, try to register a new user with the same email
         response = client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "first_name": "newuser",
                 "last_name": "tester",
@@ -51,7 +51,7 @@ class TestAuth:
 
     def test_register_invalid_password(self, client, app):
         response = client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "first_name": "weakpassword",
                 "last_name": "tester",
@@ -67,7 +67,7 @@ class TestAuth:
 
     def test_register_invalid_email(self, client, app):
         response = client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "first_name": "invalidemail",
                 "last_name": "tester",
@@ -83,7 +83,7 @@ class TestAuth:
 
     def test_register_missing_fields(self, client, app):
         response = client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "first_name": "incomplete",
                 # Missing last_name and email
@@ -95,7 +95,7 @@ class TestAuth:
 
     def test_register_user_uppercase_email(self, client, app, db_session):
         response = client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "first_name": "uppercaseemail",
                 "last_name": "tester",
@@ -108,7 +108,7 @@ class TestAuth:
 
     def test_login_valid_user(self, client, app, test_user):
         response = client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": test_user.email, "password": "password123@AAA"},
         )
         assert response.status_code == HTTPStatus.OK
@@ -122,7 +122,7 @@ class TestAuth:
 
     def test_login_valid_user_uppercase_email(self, client, app, test_user):
         response = client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={
                 "email": test_user.email.upper(),
                 "password": "password123@AAA",
@@ -139,7 +139,7 @@ class TestAuth:
 
     def test_login_invalid_password(self, client, app, test_user):
         response = client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": test_user.email, "password": "wrongpassword"},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
@@ -147,7 +147,7 @@ class TestAuth:
 
     def test_login_invalid_email(self, client, app):
         response = client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": "invalid@example.com", "password": "wrongpassword"},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
@@ -164,7 +164,7 @@ class TestAuth:
         inactive_user.update({"active": False}, commit=True)
         inactive_user.set_password("Somepass123@A")
         response = client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": inactive_user.email, "password": "Somepass123@A"},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
@@ -181,14 +181,14 @@ class TestAuth:
         deleted_user.set_password("Somepass123@A")
         deleted_user.soft_delete(commit=True)
         response = client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": deleted_user.email, "password": "Somepass123@A"},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert response.json.get("message") == "Invalid email or password"
 
     def test_logout_user(self, test_user, authenticated_client):
-        response = authenticated_client.post("/auth/logout")
+        response = authenticated_client.post("/api/auth/logout")
         assert response.status_code == HTTPStatus.OK
         assert response.json.get("message") == "Logout successful"
         assert test_user.last_logout_at is not None
@@ -198,18 +198,18 @@ class TestAuth:
         with freeze_time("2023-01-01 12:05:00"):
 
             # First logout
-            response = authenticated_client.post("/auth/logout")
+            response = authenticated_client.post("/api/auth/logout")
             assert response.status_code == HTTPStatus.OK
 
             # Now try to access protected route
-            response = authenticated_client.get("/auth/who_am_i")
+            response = authenticated_client.get("/api/auth/who_am_i")
             assert response.status_code == HTTPStatus.UNAUTHORIZED
             assert response.json.get("message") == "Token has been revoked."
 
     def test_who_am_i_route_with_authenticated_user(
         self, test_user, authenticated_client
     ):
-        response = authenticated_client.get("/auth/who_am_i")
+        response = authenticated_client.get("/api/auth/who_am_i")
 
         assert response.status_code == 200
         assert response.get_json() == {
@@ -224,7 +224,7 @@ class TestAuth:
         self, test_user, authenticated_client
     ):
         response = authenticated_client.post(
-            "/auth/update_password",
+            "/api/auth/update_password",
             json={
                 "password": "wrongcurrentpassword",
                 "new_password": "Newpass123@A",
@@ -235,7 +235,7 @@ class TestAuth:
 
     def test_update_password_valid(self, test_user, authenticated_client):
         response = authenticated_client.post(
-            "/auth/update_password",
+            "/api/auth/update_password",
             json={
                 "password": "password123@AAA",
                 "new_password": "Newpass123@A",
@@ -244,7 +244,7 @@ class TestAuth:
         assert response.status_code == HTTPStatus.OK
         # Now try to login with the new password
         login_response = authenticated_client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={"email": test_user.email, "password": "Newpass123@A"},
         )
         assert login_response.status_code == HTTPStatus.OK

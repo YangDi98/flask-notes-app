@@ -113,7 +113,7 @@ def authenticated_client(client, test_user, app):
     """Return a client already logged in as a test user."""
 
     response = client.post(
-        "/auth/login",
+        "/api/auth/login",
         json={"email": test_user.email, "password": "password123@AAA"},
         follow_redirects=True,
     )
@@ -129,7 +129,7 @@ def frozen_time_client(client, test_user):
     def create_client_at_time(frozen_time):
         with freeze_time(frozen_time):
             response = client.post(
-                "/auth/login",
+                "/api/auth/login",
                 json={
                     "email": test_user.email,
                     "password": "password123@AAA",

@@ -16,7 +16,7 @@ from src.schemas.auth import RegisterSchema, UserSchema, UpdatePasswordSchema
 from src.extensions import db, bcrypt
 from src.models.users import User
 
-auth_blueprint = Blueprint("auth", __name__, url_prefix="/auth")
+auth_blueprint = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 
 @auth_blueprint.route("/register", methods=["POST"])
