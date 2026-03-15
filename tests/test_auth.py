@@ -116,7 +116,7 @@ class TestAuth:
         # Check if refresh token cookie is set
         cookies = response.headers.getlist("Set-Cookie")
         refresh_cookie_found = any(
-            "refresh_token=" in cookie for cookie in cookies
+            "refresh_token_cookie=" in cookie for cookie in cookies
         )
         assert refresh_cookie_found, "Refresh token cookie should be set"
 
@@ -133,7 +133,7 @@ class TestAuth:
         # Check if refresh token cookie is set
         cookies = response.headers.getlist("Set-Cookie")
         refresh_cookie_found = any(
-            "refresh_token=" in cookie for cookie in cookies
+            "refresh_token_cookie=" in cookie for cookie in cookies
         )
         assert refresh_cookie_found, "Refresh token cookie should be set"
 
