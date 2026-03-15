@@ -27,3 +27,6 @@ The front end of the app and the back end have different origins. The front end 
 ### Future Considerations
 - This does not protect our app against XSS. XSS vulnerability applies equally to memory/localStorage/cookies
 - Not sure about what impact does this bring if we later adds caching for some reason in the backend. 
+
+### Note
+- After attempt to set up reverse proxy on cloud front failed (for some reason the request was not able to reach my backend and returns 503 even though my backend service is fine), I decided to disable using csrf token for now. This is acceptable since we only use the cookies for the refresh token endpoint which is not state alterning and the reponse is protected by CORS. 
