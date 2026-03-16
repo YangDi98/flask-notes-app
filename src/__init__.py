@@ -171,7 +171,7 @@ def create_app(test_config=None):
     app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
     app.config["JWT_REFRESH_COOKIE_PATH"] = "/api/auth/refresh"
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False
-    app.config["JWT_COOKIE_SAMESITE"] = "Strict"
+    app.config["JWT_COOKIE_SAMESITE"] = "None"
     app.config["JWT_COOKIE_SECURE"] = (
         os.getenv("JWT_COOKIE_SECURE", "True").lower() == "true"
     )
