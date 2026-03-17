@@ -10,6 +10,7 @@ import os
 from src.views.notes import note_blueprint
 from src.views.categories import category_blueprint
 from src.views.auth import auth_blueprint
+from src.views.users import user_blueprint
 from src.models.users import User
 from .extensions import db, migrate, bcrypt, jwt, cors, babel
 
@@ -137,7 +138,6 @@ def get_locale():
     try:
         user = current_user
         if user and user.preferred_language:
-            print(f"Using user preferred language: {user.preferred_language}")
             return user.preferred_language
     except RuntimeError:
         # current_user is not available (no valid JWT token)
@@ -220,4 +220,5 @@ def create_app(test_config=None):
     api.register_blueprint(note_blueprint)
     api.register_blueprint(category_blueprint)
     api.register_blueprint(auth_blueprint)
+    api.register_blueprint(user_blueprint)
     return app

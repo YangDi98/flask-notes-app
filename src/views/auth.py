@@ -32,6 +32,9 @@ def register(req_json):
     hashed = bcrypt.generate_password_hash(req_json["password"]).decode(
         "utf-8"
     )
+    req_json["preferred_language"] = (
+        request.accept_languages.best_match(["en_CA", "zh_CN"]) or "en_CA"
+    )
     user = User.create({**req_json, "password": hashed}, commit=False)
     db.session.add(user)
     db.session.commit()
