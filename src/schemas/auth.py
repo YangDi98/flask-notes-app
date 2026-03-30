@@ -37,6 +37,9 @@ class RegisterSchema(Schema):
     password = fields.Str(
         required=True, validate=validate.Length(min=9, max=128)
     )
+    preferred_language = fields.Str(
+        validate=validate.OneOf(["en_CA", "zh_CN"])
+    )
 
     @pre_load
     def process_input(self, data, **kwargs):
@@ -73,13 +76,3 @@ class UpdatePasswordSchema(Schema):
     def process_input(self, data, **kwargs):
         validate_password(data["new_password"])
         return data
-
-
-class UserSchema(Schema):
-    id = fields.Int(dump_only=True)
-    first_name = fields.Str()
-    last_name = fields.Str()
-    email = fields.Email()
-    active = fields.Bool()
-    created_at = fields.DateTime()
-    updated_at = fields.DateTime()

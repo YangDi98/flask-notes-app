@@ -12,7 +12,8 @@ from flask_jwt_extended import (
 )
 from flask_babel import gettext
 
-from src.schemas.auth import RegisterSchema, UserSchema, UpdatePasswordSchema
+from src.schemas.auth import RegisterSchema, UpdatePasswordSchema
+from src.schemas.users import UserSchema
 from src.extensions import db, bcrypt
 from src.models.users import User
 
@@ -32,9 +33,10 @@ def register(req_json):
     hashed = bcrypt.generate_password_hash(req_json["password"]).decode(
         "utf-8"
     )
-    req_json["preferred_language"] = (
-        request.accept_languages.best_match(["en_CA", "zh_CN"]) or "en_CA"
-    )
+    if not req_json.get("preferred_language"):
+        req_json["preferred_language"] = (
+            request.accept_languages.best_match(["en_CA", "zh_CN"]) or "en_CA"
+        )
     user = User.create({**req_json, "password": hashed}, commit=False)
     db.session.add(user)
     db.session.commit()
@@ -104,6 +106,7 @@ def protected():
                 "active": current_user.active,
                 "first_name": current_user.first_name,
                 "last_name": current_user.last_name,
+                "preferred_language": current_user.preferred_language,
             }
         ),
         200,

@@ -34,6 +34,7 @@ class UserSchema(Schema):
     id = fields.Int(dump_only=True)
     first_name = fields.Str()
     last_name = fields.Str()
+    active = fields.Bool(dump_only=True)
     email = fields.Email(dump_only=True)
     preferred_language = fields.Str()
     active = fields.Bool(dump_only=True)
