@@ -193,18 +193,6 @@ class TestAuth:
         assert response.json.get("message") == "Logout successful"
         assert test_user.last_logout_at is not None
 
-    def test_who_am_i_route_success(self, test_user, authenticated_client):
-        response = authenticated_client.get("/api/auth/who_am_i")
-        assert response.status_code == HTTPStatus.OK
-        assert response.get_json() == {
-            "id": test_user.id,
-            "email": test_user.email,
-            "active": test_user.active,
-            "first_name": test_user.first_name,
-            "last_name": test_user.last_name,
-            "preferred_language": test_user.preferred_language,
-        }
-
     def test_who_am_i_route_after_logout(self, test_user, frozen_time_client):
         authenticated_client = frozen_time_client("2023-01-01 12:00:00")
         with freeze_time("2023-01-01 12:05:00"):
@@ -230,6 +218,7 @@ class TestAuth:
             "active": test_user.active,
             "first_name": test_user.first_name,
             "last_name": test_user.last_name,
+            "preferred_language": test_user.preferred_language,
         }
 
     def test_update_password_wrong_current_password(
