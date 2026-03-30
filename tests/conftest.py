@@ -100,6 +100,7 @@ def test_user(db_session):
             "first_name": "Test",
             "last_name": "User",
             "email": "test@example.com",
+            "preferred_language": "en_CA",
         }
     )
     user.set_password("password123@AAA")

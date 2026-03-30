@@ -218,6 +218,7 @@ class TestAuth:
             "active": test_user.active,
             "first_name": test_user.first_name,
             "last_name": test_user.last_name,
+            "preferred_language": test_user.preferred_language,
         }
 
     def test_update_password_wrong_current_password(
